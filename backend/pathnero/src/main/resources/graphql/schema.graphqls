@@ -1,0 +1,39 @@
+type Query {
+  jobs: [Job]
+  job(id: ID!): Job
+  userProfile(userId: ID!): UserProfile
+}
+
+type Mutation {
+  createJob(title: String!, description: String!, location: String!, companyId: ID!): Job
+  createCompany(name: String!, description: String!): Company
+  applyForJob(userId: ID!, jobId: ID!): JobApplication
+}
+
+type Job {
+  id: ID!
+  title: String!
+  description: String!
+  location: String!
+  company: Company
+}
+
+type Company {
+  id: ID!
+  name: String!
+  description: String
+}
+
+type UserProfile {
+  id: ID!
+  name: String!
+  email: String!
+  resumeUrl: String
+}
+
+type JobApplication {
+  id: ID!
+  user: UserProfile!
+  job: Job!
+  status: String
+}
