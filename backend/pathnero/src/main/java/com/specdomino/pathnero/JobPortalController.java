@@ -54,10 +54,11 @@ public class JobPortalController {
     //Mutations
 
     @MutationMapping
-    public Job createJob(@Argument String title,@Argument String description,@Argument String location,@Argument Long companyId) {
+    public Job createJob(@Argument String title,@Argument int salary, @Argument String description,@Argument String location,@Argument Long companyId) {
         Company company = companyRepository.findById(companyId).orElseThrow(() -> new RuntimeException("Company not found with id: " + companyId));
         Job job = new Job();
         job.setTitle(title);
+        job.setSalary(salary);
         job.setDescription(description);
         job.setLocation(location);
         job.setCompany(company);
@@ -82,5 +83,13 @@ public class JobPortalController {
         application.setStatus("Applied");
         return jobApplicationRepository.save(application);
     }
+
+    @MutationMapping
+    public String deleteJob(@Argument Long jobID) {
+        Job job = jobRepository.findById(jobID).orElseThrow(() -> new RuntimeException("Job not found with id: " + jobID));
+        jobRepository.delete(job);
+        return "Job with ID " + jobID + " has been deleted.";
+    }
+
 }
 
