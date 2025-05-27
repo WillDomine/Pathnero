@@ -13,11 +13,16 @@ public class WebConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/graphql")
-                        .allowedOrigins("http://localhost:5173") // Allow your frontend's URL
-                        .allowedMethods("GET", "POST", "OPTIONS") // Allow GET, POST, and OPTIONS methods
-                        .allowCredentials(true)
-                        .allowedHeaders("*"); // Allow all headers, or you can be specific
+                        .allowedOrigins("http://localhost:5173")
+                        .allowedMethods("POST")
+                        .allowCredentials(true);
+                
+                registry.addMapping("/graphiql")  // Allow GraphiQL to work as well
+                        .allowedOrigins("http://localhost:5173")
+                        .allowedMethods("GET", "POST")
+                        .allowCredentials(true);
             }
         };
     }
 }
+

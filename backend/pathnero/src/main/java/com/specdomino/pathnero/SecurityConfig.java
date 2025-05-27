@@ -17,7 +17,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable()) // Disable CSRF if you're working with stateless APIs (REST)
             .cors(cors -> cors.configurationSource(request -> new org.springframework.web.cors.CorsConfiguration().applyPermitDefaultValues())) // Explicitly apply CORS
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/graphql").permitAll() // Allow all requests to the /graphql endpoint
+                .requestMatchers("/graphql").permitAll()// Allow all requests to the /graphql endpoint
                 .anyRequest().permitAll() // Allow other requests as needed
             )
             .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults())); // If you're using OAuth2

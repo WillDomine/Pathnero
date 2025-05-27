@@ -5,14 +5,12 @@ type Query {
 }
 
 type Mutation {
-  createJob(title: String!,salary: Int! description: String!, location: String!, companyId: ID!): Job
+  createJob(title: String!, salary: Int!, description: String!, location: String!, companyId: ID!): Job
   applyForJob(userId: ID!, jobId: ID!): JobApplication
   deleteJob(id: ID!): Boolean
-
   createCompany(name: String!, description: String!): Company
-
-  registerUser(name:String!, email:String!, password:String!): UserProfile
-  loginUser(email:String!, password:String!):String
+  registerUser(name: String!, email: String!, password: String!): UserProfile
+  loginUser(email: String!, password: String!): String
 }
 
 type Job {
