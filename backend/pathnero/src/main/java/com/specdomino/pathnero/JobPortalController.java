@@ -1,21 +1,30 @@
 package com.specdomino.pathnero;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
-import java.util.List;
-import java.util.Optional;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.specdomino.pathnero.Entites.Company;
 import com.specdomino.pathnero.Entites.Job;
 import com.specdomino.pathnero.Entites.JobApplication;
 import com.specdomino.pathnero.Entites.UserProfile;
+import com.specdomino.pathnero.Repositories.CompanyRepository;
+import com.specdomino.pathnero.Repositories.JobApplicationRepository;
+import com.specdomino.pathnero.Repositories.JobRepository;
+import com.specdomino.pathnero.Repositories.UserProfileRepository;
 
-import com.specdomino.pathnero.Repositories.*;;;
 
-@Controller
+@Component
 public class JobPortalController {
 
     private final JobRepository jobRepository;
@@ -26,6 +35,7 @@ public class JobPortalController {
     @Autowired
     public JobPortalController(JobRepository jobRepository,CompanyRepository companyRepository,UserProfileRepository userProfileRepository,JobApplicationRepository jobApplicationRepository) 
     {
+        System.out.println("JobPortalController created");
         this.jobRepository = jobRepository;
         this.companyRepository = companyRepository;
         this.userProfileRepository = userProfileRepository;
@@ -35,8 +45,11 @@ public class JobPortalController {
     //Queries
 
     @QueryMapping
+    @PreAuthorize("permitAll()")
     public List<Job> jobs() {
-        return jobRepository.findAll();
+        List<Job> jobs = jobRepository.findAll();
+        System.out.println("Jobs retrieved by repository: " + (jobs != null ? jobs.size() : "null"));
+        return jobs;
     }
 
     @QueryMapping
@@ -66,6 +79,7 @@ public class JobPortalController {
     }
 
     @MutationMapping
+    @PreAuthorize("isAuthenticated() && hasRole('ADMIN')")
     public Company createCompany(@Argument String name,@Argument String description) {
         Company company = new Company();
         company.setName(name);
@@ -85,10 +99,37 @@ public class JobPortalController {
     }
 
     @MutationMapping
-    public String deleteJob(@Argument Long jobID) {
-        Job job = jobRepository.findById(jobID).orElseThrow(() -> new RuntimeException("Job not found with id: " + jobID));
-        jobRepository.delete(job);
-        return "Job with ID " + jobID + " has been deleted.";
+    @PreAuthorize("isAuthenticated() && hasRole('ADMIN')")
+    public Boolean deleteJob(@Argument("id") Long jobId) {
+        if(jobRepository.existsById(jobId)) {
+            jobRepository.deleteById(jobId);
+            return true;
+        }
+        return false;
+    }
+
+    @MutationMapping
+    public UserProfile registerUser(@Argument String name,@Argument String email,@Argument String password,@Argument String role) {
+        if (userProfileRepository.findByEmail(email).isPresent()) {
+            throw new IllegalArgumentException("Email is already in use!");
+        }
+
+        UserProfile userProfile = new UserProfile();
+        userProfile.setName(name);
+        userProfile.setEmail(email);
+        userProfile.setRole("USER"); // Default role
+        userProfile.setPassword(new BCryptPasswordEncoder().encode(password)); // Hash password
+
+        return userProfileRepository.save(userProfile);
+    }
+
+    @MutationMapping
+    public String login(@Argument String email, @Argument String password) {
+        UserProfile user = userProfileRepository.findByEmail(email).orElse(null);
+        if (user != null && user.checkPassword(password)) {
+            return new JwtUtil().generateToken(email, user.getRole());
+        }
+        return null;
     }
 
 }
