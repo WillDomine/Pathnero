@@ -7,12 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.specdomino.pathnero.Entites.Company;
 import com.specdomino.pathnero.Entites.Job;
@@ -24,7 +19,7 @@ import com.specdomino.pathnero.Repositories.JobRepository;
 import com.specdomino.pathnero.Repositories.UserProfileRepository;
 
 
-@Component
+@Controller
 public class JobPortalController {
 
     private final JobRepository jobRepository;
@@ -45,7 +40,6 @@ public class JobPortalController {
     //Queries
 
     @QueryMapping
-    @PreAuthorize("permitAll()")
     public List<Job> jobs() {
         List<Job> jobs = jobRepository.findAll();
         System.out.println("Jobs retrieved by repository: " + (jobs != null ? jobs.size() : "null"));
@@ -79,7 +73,6 @@ public class JobPortalController {
     }
 
     @MutationMapping
-    @PreAuthorize("isAuthenticated() && hasRole('ADMIN')")
     public Company createCompany(@Argument String name,@Argument String description) {
         Company company = new Company();
         company.setName(name);
@@ -99,7 +92,6 @@ public class JobPortalController {
     }
 
     @MutationMapping
-    @PreAuthorize("isAuthenticated() && hasRole('ADMIN')")
     public Boolean deleteJob(@Argument("id") Long jobId) {
         if(jobRepository.existsById(jobId)) {
             jobRepository.deleteById(jobId);
@@ -109,7 +101,7 @@ public class JobPortalController {
     }
 
     @MutationMapping
-    public UserProfile registerUser(@Argument String name,@Argument String email,@Argument String password,@Argument String role) {
+    public UserProfile registerUser(@Argument String name,@Argument String email,@Argument String password) {
         if (userProfileRepository.findByEmail(email).isPresent()) {
             throw new IllegalArgumentException("Email is already in use!");
         }
@@ -118,18 +110,9 @@ public class JobPortalController {
         userProfile.setName(name);
         userProfile.setEmail(email);
         userProfile.setRole("USER"); // Default role
-        userProfile.setPassword(new BCryptPasswordEncoder().encode(password)); // Hash password
+        userProfile.setPassword(password); // Hash password
 
         return userProfileRepository.save(userProfile);
-    }
-
-    @MutationMapping
-    public String login(@Argument String email, @Argument String password) {
-        UserProfile user = userProfileRepository.findByEmail(email).orElse(null);
-        if (user != null && user.checkPassword(password)) {
-            return new JwtUtil().generateToken(email, user.getRole());
-        }
-        return null;
     }
 
 }

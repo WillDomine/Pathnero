@@ -1,7 +1,5 @@
 package com.specdomino.pathnero.Entites;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -60,11 +58,12 @@ public class UserProfile {
         this.role = role;
     }
 
-    public void setPassword(String rawPassword) {
-        this.password = new BCryptPasswordEncoder().encode(rawPassword);
+    public String getPassword() {
+        return password;
     }
 
-    public boolean checkPassword(String rawPassword) {
-        return new BCryptPasswordEncoder().matches(rawPassword, this.password);
+    public void setPassword(String password) {
+        this.password = password;
     }
+
 }
