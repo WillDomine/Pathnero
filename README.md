@@ -1,2 +1,2 @@
 # Pathnero
-Pathnero a job board application that uses a stack including reactjs, springboot, graphql, postgres, and jwt.
+Pathnero is a job board application that uses a tech stack including ReactJS, Spring Boot, GraphQL, PostgreSQL, and JWT.
