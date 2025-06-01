@@ -58,6 +58,18 @@ public class JobPortalController {
         return userOpt.orElse(null);
     }
 
+    @QueryMapping
+    public List<JobApplication> jobApplications(@Argument Long jobId) {
+        List<JobApplication> jobApplications = jobApplicationRepository.findByJobId(jobId);
+        return jobApplications;
+    }
+
+    @QueryMapping
+    public List<Company> companies() {
+        List<Company> companies = companyRepository.findAll();
+        return companies;
+    }
+
     //Mutations
 
     @MutationMapping
