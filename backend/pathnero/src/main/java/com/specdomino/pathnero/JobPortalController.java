@@ -7,8 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 
 import com.specdomino.pathnero.Entites.Company;
@@ -24,22 +22,19 @@ import com.specdomino.pathnero.Repositories.UserProfileRepository;
 @Controller
 public class JobPortalController {
 
-    private final PasswordEncoder passwordEncoder;
-
     private final JobRepository jobRepository;
     private final CompanyRepository companyRepository;
     private final UserProfileRepository userProfileRepository;
     private final JobApplicationRepository jobApplicationRepository;
 
     @Autowired
-    public JobPortalController(JobRepository jobRepository,CompanyRepository companyRepository,UserProfileRepository userProfileRepository,JobApplicationRepository jobApplicationRepository, PasswordEncoder passwordEncoder) 
+    public JobPortalController(JobRepository jobRepository,CompanyRepository companyRepository,UserProfileRepository userProfileRepository,JobApplicationRepository jobApplicationRepository) 
     {
         System.out.println("JobPortalController created");
         this.jobRepository = jobRepository;
         this.companyRepository = companyRepository;
         this.userProfileRepository = userProfileRepository;
         this.jobApplicationRepository = jobApplicationRepository;
-        this.passwordEncoder = passwordEncoder;
     }
 
     //Queries
@@ -48,7 +43,6 @@ public class JobPortalController {
      * Retrieves a list of all jobs.
      * @return the list of Job objects
      */
-    @PreAuthorize("permitAll()")
     @QueryMapping
     public List<Job> jobs() {
         List<Job> jobs = jobRepository.findAll();
@@ -60,7 +54,6 @@ public class JobPortalController {
      * @param id the ID of the job
      * @return the Job object, or null if not found
      */
-    @PreAuthorize("isAuthenticated()")
     @QueryMapping
     public Job job(@Argument Long id) {
         Optional<Job> jobOpt = jobRepository.findById(id);
@@ -72,7 +65,6 @@ public class JobPortalController {
      * @param userId the ID of the user profile
      * @return the UserProfile object, or null if not found
      */
-    @PreAuthorize("isAuthenticated()")
     @QueryMapping
     public UserProfile userProfile(@Argument Long userId) {
         Optional<UserProfile> userOpt = userProfileRepository.findById(userId);
@@ -84,7 +76,6 @@ public class JobPortalController {
      * @param jobId the ID of the job posting
      * @return a list of JobApplication objects
      */
-    @PreAuthorize("isAuthenticated()")
     @QueryMapping
     public List<JobApplication> jobApplications(@Argument Long jobId) {
         List<JobApplication> jobApplications = jobApplicationRepository.findByJobId(jobId);
@@ -95,7 +86,6 @@ public class JobPortalController {
      * Retrieves a list of all companies.
      * @return a list of Company objects
      */
-    @PreAuthorize("isAuthenticated()")
     @QueryMapping
     public List<Company> companies() {
         List<Company> companies = companyRepository.findAll();
@@ -117,7 +107,6 @@ public class JobPortalController {
      * @return the saved Job object
      * @throws RuntimeException if the company is not found with the given id
      */
-    @PreAuthorize("isAuthenticated()")
     @MutationMapping
     public Job createJob(@Argument String title,@Argument int salary, @Argument String description,@Argument String location,@Argument Long companyId) {
         Company company = companyRepository.findById(companyId).orElseThrow(() -> new RuntimeException("Company not found with id: " + companyId));
@@ -141,7 +130,6 @@ public class JobPortalController {
      * @return the updated Job object
      * @throws RuntimeException if the job is not found with the given id
      */
-    @PreAuthorize("isAuthenticated()")
     @MutationMapping
     public Job updateJob(@Argument Long id, @Argument String title, @Argument int salary, @Argument String description, @Argument String location) {
         Job job = jobRepository.findById(id).orElseThrow(() -> new RuntimeException("Job not found with id: " + id));
@@ -158,7 +146,6 @@ public class JobPortalController {
      * @param jobId The ID of the job to delete.
      * @return true if the job was successfully deleted, false otherwise.
      */
-    @PreAuthorize("isAuthenticated()")
     @MutationMapping
     public Boolean deleteJob(@Argument("id") Long jobId) {
         if(jobRepository.existsById(jobId)) {
@@ -177,7 +164,6 @@ public class JobPortalController {
      * @return the saved JobApplication object
      * @throws RuntimeException if the user or job posting is not found
      */
-    @PreAuthorize("isAuthenticated()")
     @MutationMapping
     public JobApplication applyForJob(@Argument Long userId,@Argument Long jobId) {
         UserProfile user = userProfileRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
@@ -197,7 +183,6 @@ public class JobPortalController {
      * @return the updated JobApplication object
      * @throws RuntimeException if the job application is not found with the given id
      */
-    @PreAuthorize("isAuthenticated()")
     @MutationMapping
     public JobApplication updateJobApplicationStatus(@Argument Long applicationId, @Argument String status) {
         JobApplication application = jobApplicationRepository.findById(applicationId).orElseThrow(() -> new RuntimeException("Job Application not found with id: " + applicationId));
@@ -211,7 +196,6 @@ public class JobPortalController {
      * @param applicationId the ID of the job application to delete
      * @return true if the job application was successfully deleted, false otherwise
      */
-    @PreAuthorize("isAuthenticated()")
     @MutationMapping
     public Boolean deleteJobApplication(@Argument Long applicationId) {
         if(jobApplicationRepository.existsById(applicationId)) {
@@ -230,7 +214,6 @@ public class JobPortalController {
      * @param description the description to set for the new company
      * @return the saved Company object
      */
-    @PreAuthorize("isAuthenticated()")
     @MutationMapping
     public Company createCompany(@Argument String name,@Argument String description) {
         Company company = new Company();
@@ -248,7 +231,6 @@ public class JobPortalController {
      * @return the updated Company object
      * @throws RuntimeException if the company is not found with the given id
      */
-    @PreAuthorize("isAuthenticated()")
     @MutationMapping
     public Company updateCompany(@Argument Long id,@Argument String name,@Argument String description) {
         Company company = companyRepository.findById(id).orElseThrow(() -> new RuntimeException("Company not found with id: " + id));
@@ -262,7 +244,6 @@ public class JobPortalController {
      * @param companyId The ID of the company to delete.
      * @return true if the company was deleted, false otherwise.
      */
-    @PreAuthorize("isAuthenticated()")
     @MutationMapping
     public Boolean deleteCompany(@Argument("id") Long companyId) {
         if(companyRepository.existsById(companyId)) {
@@ -283,7 +264,6 @@ public class JobPortalController {
      * @return the saved UserProfile object
      * @throws IllegalArgumentException if the email is already in use
      */
-    @PreAuthorize("permitAll()")
     @MutationMapping
     public UserProfile registerUser(@Argument String name,@Argument String email,@Argument String password) {
         if (userProfileRepository.findByEmail(email).isPresent()) {
@@ -294,7 +274,7 @@ public class JobPortalController {
         userProfile.setName(name);
         userProfile.setEmail(email);
         userProfile.setRole("USER"); // Default role
-        userProfile.setPassword(passwordEncoder.encode(password)); // Hash password
+        userProfile.setPassword(password); // Hash password
 
         return userProfileRepository.save(userProfile);
     }
@@ -309,7 +289,6 @@ public class JobPortalController {
      * @return the updated UserProfile object
      * @throws RuntimeException if the user is not found with the given email
      */
-    @PreAuthorize("isAuthenticated()")
     @MutationMapping
     public UserProfile updateUser(@Argument String email, @Argument String name, @Argument String password, @Argument String resumeUrl) {
         UserProfile userProfile = userProfileRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found with email: " + email));
@@ -324,7 +303,6 @@ public class JobPortalController {
      * @param email the email of the user to delete
      * @return true if the user was deleted, false otherwise
      */
-    @PreAuthorize("isAuthenticated()")
     @MutationMapping
     public Boolean deleteUser(@Argument String email) {
         Optional<UserProfile> userOpt = userProfileRepository.findByEmail(email);
