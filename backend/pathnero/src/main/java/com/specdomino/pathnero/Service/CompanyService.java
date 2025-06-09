@@ -17,6 +17,11 @@ public class CompanyService {
     @Autowired
     private CompanyRepository companyRepository;
 
+    @QueryMapping
+    public Company company(@Argument Long id) {
+        return companyRepository.findById(id).orElseThrow(() -> new RuntimeException("Company not found with id: " + id));
+    }
+
     /**
      * Retrieves a list of all companies.
      * @return a list of Company objects

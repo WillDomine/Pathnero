@@ -1,5 +1,6 @@
 package com.specdomino.pathnero.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,11 @@ public class UserProfileService {
     public UserProfile userProfile(@Argument String email) {
         Optional<UserProfile> userOpt = userProfileRepository.findByEmail(email);
         return userOpt.orElse(null);
+    }
+
+    @QueryMapping
+    public List<UserProfile> getAllUsers() {
+        return userProfileRepository.findAll();
     }
 
        /**

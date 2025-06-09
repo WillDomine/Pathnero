@@ -8,5 +8,6 @@ import com.specdomino.pathnero.Entites.JobApplication;
 
 public interface JobApplicationRepository extends JpaRepository<JobApplication, Long> {
     public List<JobApplication> findByJobId(Long jobId);
+    public List<JobApplication> findByUserId(Long userId);
 }
 

@@ -27,14 +27,31 @@ public class JobApplicationService {
     @Autowired
     private UserProfileRepository userProfileRepository;
 
+    @QueryMapping
+    public JobApplication jobApplication(@Argument Long id) {
+        return jobApplicationRepository.findById(id).orElseThrow(() -> new RuntimeException("Job Application not found with id: " + id));
+    }
+
     /**
      * Retrieves a list of JobApplication objects for the given jobId.
      * @param jobId the ID of the job posting
      * @return a list of JobApplication objects
      */
     @QueryMapping
-    public List<JobApplication> jobApplications(@Argument Long jobId) {
+    public List<JobApplication> getJobApplications(@Argument Long jobId) {
         List<JobApplication> jobApplications = jobApplicationRepository.findByJobId(jobId);
+        return jobApplications;
+    }
+
+    @QueryMapping
+    public List<JobApplication> getJobApplicationsByUser(@Argument Long userId) {
+        List<JobApplication> jobApplications = jobApplicationRepository.findByUserId(userId);
+        return jobApplications;
+    }
+
+    @QueryMapping
+    public List<JobApplication> getAllJobApplications() {
+        List<JobApplication> jobApplications = jobApplicationRepository.findAll();
         return jobApplications;
     }
     

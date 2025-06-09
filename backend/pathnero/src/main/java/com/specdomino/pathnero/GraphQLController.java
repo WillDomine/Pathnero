@@ -1,5 +1,13 @@
 package com.specdomino.pathnero;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
+import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.stereotype.Controller;
+
 import com.specdomino.pathnero.Entites.Company;
 import com.specdomino.pathnero.Entites.Job;
 import com.specdomino.pathnero.Entites.JobApplication;
@@ -8,13 +16,6 @@ import com.specdomino.pathnero.Service.CompanyService;
 import com.specdomino.pathnero.Service.JobApplicationService;
 import com.specdomino.pathnero.Service.JobService;
 import com.specdomino.pathnero.Service.UserProfileService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.graphql.data.method.annotation.Argument;
-import org.springframework.graphql.data.method.annotation.MutationMapping;
-import org.springframework.graphql.data.method.annotation.QueryMapping;
-import org.springframework.stereotype.Controller;
-
-import java.util.List;
 
 @Controller
 public class GraphQLController {
@@ -65,6 +66,11 @@ public class GraphQLController {
 
     // --- Company Queries & Mutations ---
     @QueryMapping
+    public Company company(@Argument Long id) {
+        return companyService.company(id);
+    }
+
+    @QueryMapping
     public List<Company> companies() {
         return companyService.companies();
     }
@@ -86,8 +92,23 @@ public class GraphQLController {
 
     // --- Job Application Queries & Mutations ---
     @QueryMapping
-    public List<JobApplication> jobApplications(@Argument Long jobId) {
-        return jobApplicationService.jobApplications(jobId);
+    public JobApplication jobApplication(@Argument Long id) {
+        return jobApplicationService.jobApplication(id);
+    }
+
+    @QueryMapping
+    public List<JobApplication> getJobApplications(@Argument Long jobId) {
+        return jobApplicationService.getJobApplications(jobId);
+    }
+
+    @QueryMapping
+    public List<JobApplication> getJobApplicationsByUser(@Argument Long userId) {
+        return jobApplicationService.getJobApplicationsByUser(userId);
+    }
+
+    @QueryMapping
+    public List<JobApplication> getAllJobApplications() {
+        return jobApplicationService.getAllJobApplications();
     }
 
     @MutationMapping
@@ -109,6 +130,11 @@ public class GraphQLController {
     @QueryMapping
     public UserProfile userProfile(@Argument String email) {
         return userProfileService.userProfile(email);
+    }
+
+    @QueryMapping
+    public List<UserProfile> getAllUsers() {
+        return userProfileService.getAllUsers();
     }
 
     @MutationMapping
